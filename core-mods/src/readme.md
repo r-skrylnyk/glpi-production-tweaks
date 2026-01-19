@@ -1,4 +1,4 @@
-***REMOVED******REMOVED*** 🖥️ File: `src/Computer.php`
+***REMOVED******REMOVED*** File: `src/Computer.php`
 
 ***REMOVED******REMOVED******REMOVED*** Goal
 Simplify the "Computer" asset view by hiding irrelevant tabs for our workflow.
@@ -49,12 +49,12 @@ To restore any tab, open `src/Computer.php` and uncomment the corresponding line
 
 **Example - Restoring Antivirus tab:**
 Change:
-```php
+php
 
 // ->addStandardTab(ItemAntivirus::class, $ong, $options) //
 
 Back to original:
-```php
+php
 
 ->addStandardTab(ItemAntivirus::class, $ong, $options)
 
