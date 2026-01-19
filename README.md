@@ -1,6 +1,6 @@
 A collection of scripts, UI modifications (hidden tabs), and best practices for running GLPI for me.
 
-1. [Simplify the "Computer" asset view by hiding irrelevant tabs for our workflow.](core-mods/src/readme.md)
+1. [Simplify the "Computer" and "Monitor" asset view by hiding irrelevant tabs for our workflow.](core-mods/src/readme.md)
 
 
 
