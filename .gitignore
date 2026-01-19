@@ -1,0 +1,12 @@
+# Ignore database dumps and archives
+*.sql
+*.gz
+*.zip
+
+# Ignore environment configuration files
+config_db.php
+.env
+
+# Ignore system files
+.DS_Store
+Thumbs.db
