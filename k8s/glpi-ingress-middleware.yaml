@@ -1,0 +1,12 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: set-https-scheme
+  namespace: glpi
+spec:
+  headers:
+    # Inject X-Forwarded-Proto: https so GLPI samlsso (proxied=1) builds ACS URLs
+    # with https:// instead of http://.
+    # Safe because ALL traffic arrives via the external nginx reverse proxy over TLS.
+    customRequestHeaders:
+      X-Forwarded-Proto: "https"

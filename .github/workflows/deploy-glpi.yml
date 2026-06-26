@@ -67,6 +67,7 @@ jobs:
             k8s/glpi-configmap.yaml
             k8s/glpi-deployment.yaml
             k8s/glpi-service.yaml
+            k8s/glpi-ingress-middleware.yaml
             k8s/glpi-ingress.yaml
 
       - name: Check pod status

@@ -6,6 +6,9 @@ metadata:
   annotations:
     # Traefik (k3s default) — SSL термінується на nginx-proxy (YOUR_NGINX_PROXY_IP), тут plain HTTP
     traefik.ingress.kubernetes.io/router.entrypoints: web
+    # Підключає middleware, який вставляє X-Forwarded-Proto: https.
+    # Потрібно для samlsso (proxied=1) — без цього ACS URL будується як http://.
+    traefik.ingress.kubernetes.io/router.middlewares: glpi-set-https-scheme@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
