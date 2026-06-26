@@ -25,7 +25,7 @@ spec:
           # Офіційний образ — містить правильний Apache, всі PHP extensions, auto-генерацію config_db.php
           # Custom image can be used instead when core-mods/plugins need to be baked in
           image: glpi/glpi:11.0.8
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             - name: TIMEZONE
               value: "Europe/Kyiv"

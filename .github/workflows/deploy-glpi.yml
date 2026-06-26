@@ -62,7 +62,6 @@ jobs:
           action: deploy
           strategy: basic
           namespace: ${{ env.K8S_NAMESPACE }}
-          timeout: 5m
           manifests: |
             k8s/glpi-pvc.yaml
             k8s/glpi-configmap.yaml
