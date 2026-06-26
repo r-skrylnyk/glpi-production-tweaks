@@ -36,14 +36,14 @@ spec:
             - name: GLPI_DB_PORT
               value: "3306"
             - name: GLPI_DB_NAME
-              value: glpi
+              value: glpidb
             - name: GLPI_DB_USER
-              value: glpi
+              value: glpi_user
             - name: GLPI_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mariadb-secret
-                  key: glpi-password
+                  key: glpi-user-password
           ports:
             - containerPort: 80
           volumeMounts:
@@ -58,7 +58,7 @@ spec:
           livenessProbe:
             tcpSocket:
               port: 80
-            initialDelaySeconds: 15
+            initialDelaySeconds: 120
             periodSeconds: 15
             timeoutSeconds: 5
             failureThreshold: 3
@@ -66,10 +66,10 @@ spec:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 20
+            initialDelaySeconds: 120
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 3
+            failureThreshold: 6
           resources:
             requests:
               memory: "256Mi"

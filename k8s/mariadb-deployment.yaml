@@ -27,14 +27,14 @@ spec:
                   name: mariadb-secret
                   key: root-password
             - name: MYSQL_DATABASE
-              value: glpi
+              value: glpidb
             - name: MYSQL_USER
-              value: glpi
+              value: glpi_user
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mariadb-secret
-                  key: glpi-password
+                  key: glpi-user-password
           ports:
             - containerPort: 3306
           volumeMounts:
