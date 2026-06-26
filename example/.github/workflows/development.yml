@@ -1,0 +1,193 @@
+name: Tests and Deploy to Development Server
+
+on:
+  push:
+    branches: [development]
+
+jobs:
+  performance:
+    if: false  ***REMOVED*** Disabled on dev — slows down pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install http-server and wait-on
+        run: npm install http-server wait-on lighthouse
+
+      - name: Run server and wait
+        run: |
+          nohup npx http-server -p 8080 &
+          sleep 7
+
+      - name: Lighthouse test
+        run: |
+          npx lighthouse http://localhost:8080 --quiet --chrome-flags="--headless" --output=json --output-path=report.json || true
+
+  lint:
+    if: false  ***REMOVED*** Disabled on dev — slows down pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup HTMLHint
+        run: npm install -g htmlhint
+
+      - name: Create HTMLHint config
+        run: |
+          if [ ! -f .htmlhintrc ]; then
+            echo '{
+              "tag-pair": true,
+              "doctype-first": true,
+              "alt-require": true
+            }' > .htmlhintrc
+          fi
+
+      - name: Check html with HTMLHint
+        run: npx htmlhint --config .htmlhintrc *.html
+
+      
+
+
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and Push image (copy custom obfuscate logic and app versions)
+      run: |
+        ***REMOVED*** web-dev image (nginx:alpine) — без обфускації, для dev k8s
+        docker build --target web-dev -t YOUR_DOCKERHUB_USERNAME/library:dev .
+        docker push YOUR_DOCKERHUB_USERNAME/library:dev
+
+    - name: Add build summary
+      run: |
+        echo "***REMOVED******REMOVED*** 🏗️ Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Docker image successfully built and pushed!" >> $GITHUB_STEP_SUMMARY
+        echo "- **Image:** YOUR_DOCKERHUB_USERNAME/library:dev (nginx, no obfuscation)" >> $GITHUB_STEP_SUMMARY
+      
+
+  deploy:
+    if: false  ***REMOVED*** Old server (159.224.220.23) no longer exists — using deploy-k8s instead
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download deploy artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: deploy-folder
+        path: ./deploy
+
+        
+    - name: Deploy via SSH
+      uses: appleboy/scp-action@v0.1.6  ***REMOVED*** Корректная версия
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 9849
+        source: "./deploy/*"
+        target: "/var/www/html"
+        strip_components: 1
+        overwrite: true
+
+    - name: Restart Nginx
+      uses: appleboy/ssh-action@v0.1.2  ***REMOVED*** Стабильная версия
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 9849
+        script: |
+          sudo systemctl restart nginx
+          echo "Deployment successful!"
+
+    - name: Debug file locations
+      run: |
+        echo "Current folder:"
+        pwd
+        echo "Contents of the current folder:"
+        ls -la
+        echo "Contents deploy:"
+        ls -la deploy/ || true
+
+    - name: Verify deployment files, app versions in Runner
+      run: |
+        echo "Node version:"
+        node -v
+        echo "pnm version:"
+        npm -v
+        echo "Contents dist:"
+        ls -lR ./deploy
+        [ -f ./deploy/index.html ] || { echo "HTML файл не найден!"; exit 1; }
+        [ -f ./deploy/style.css ] || { echo "CSS файл не найден!"; exit 1; }
+
+    - name: Contents of obscure.map
+      run: |
+        echo "Contents of obscure.map:"
+        cat ./deploy/obscure.map || echo "File not found or empty"
+
+    - name: Add deployment summary
+      run: |
+        echo "***REMOVED******REMOVED*** 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Successfully deployed to server! 159.224.220.23" >> $GITHUB_STEP_SUMMARY
+        echo "<a href='http://159.224.220.23:9852' target='_blank'>🔗 Open website</a>" >> $GITHUB_STEP_SUMMARY
+
+  deploy-k8s:
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: Configure kubeconfig
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.K8S_KUBECONFIG }}" > ~/.kube/config
+        chmod 600 ~/.kube/config
+
+    - name: Create Docker Hub pull secret
+      run: |
+        kubectl create secret docker-registry dockerhub-secret \
+          --docker-server=docker.io \
+          --docker-username=${{ secrets.DOCKERHUB_USERNAME }} \
+          --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
+          --namespace=website-dev \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Deploy to k3s
+      run: |
+        kubectl apply -f k8s/namespace.yaml
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
+        kubectl apply -f k8s/ingress.yaml
+
+    - name: Rollout new image
+      run: |
+        kubectl rollout restart deployment/website-dev -n website-dev
+        kubectl rollout status deployment/website-dev -n website-dev --timeout=120s
+
+    - name: Add k8s summary
+      run: |
+        echo "***REMOVED******REMOVED*** ☸️ k8s Deployment" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Deployed to k3s home cluster" >> $GITHUB_STEP_SUMMARY
+        echo "- **Image:** YOUR_DOCKERHUB_USERNAME/library:dev" >> $GITHUB_STEP_SUMMARY
+        echo "- **URL:** https://dev.k8s.YOUR_DOMAIN" >> $GITHUB_STEP_SUMMARY
+  
+      
+
+

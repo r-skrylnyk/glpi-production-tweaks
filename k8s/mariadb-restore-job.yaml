@@ -1,0 +1,77 @@
+***REMOVED*** ---------------------------------------------------------------------------
+***REMOVED*** MariaDB Restore Job — шаблон для відновлення бази даних
+***REMOVED*** ---------------------------------------------------------------------------
+***REMOVED***
+***REMOVED*** ВАРІАНТ A — Швидкий restore через kubectl (рекомендовано для тесту):
+***REMOVED***
+***REMOVED***   ***REMOVED*** Крок 1: скопіювати бекап в pod
+***REMOVED***   kubectl cp ./glpi-backup.sql glpi/$(kubectl get pod -n glpi -l app=mariadb -o jsonpath='{.items[0].metadata.name}'):/tmp/backup.sql
+***REMOVED***
+***REMOVED***   ***REMOVED*** Крок 2: відновити базу
+***REMOVED***   kubectl exec -n glpi deploy/mariadb -- \
+***REMOVED***     sh -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" glpi < /tmp/backup.sql'
+***REMOVED***
+***REMOVED***   ***REMOVED*** Крок 3: перевірити
+***REMOVED***   kubectl exec -n glpi deploy/mariadb -- \
+***REMOVED***     sh -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SHOW TABLES IN glpi;"'
+***REMOVED***
+***REMOVED*** ---------------------------------------------------------------------------
+***REMOVED***
+***REMOVED*** ВАРІАНТ B — Kubernetes Job (якщо бекап вже є на ноді k3s):
+***REMOVED***
+***REMOVED***   1. Помістити backup.sql на ноду: /tmp/glpi-backup/backup.sql
+***REMOVED***   2. kubectl apply -f k8s/mariadb-restore-job.yaml
+***REMOVED***   3. Слідкувати: kubectl logs -n glpi job/mariadb-restore -f
+***REMOVED***   4. Після завершення: kubectl delete job mariadb-restore -n glpi
+***REMOVED***
+***REMOVED*** ---------------------------------------------------------------------------
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mariadb-restore
+  namespace: glpi
+spec:
+  ttlSecondsAfterFinished: 300   ***REMOVED*** Авто-видалення job через 5 хвилин після завершення
+  backoffLimit: 0                ***REMOVED*** Не повторювати при помилці — краще розібратися вручну
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: restore
+          image: mariadb:11.4
+          command:
+            - sh
+            - -c
+            - |
+              echo "=== Waiting for MariaDB to be ready... ==="
+              until mysqladmin ping -h mariadb --silent; do
+                echo "Waiting..."
+                sleep 3
+              done
+
+              echo "=== Starting restore of 'glpi' database... ==="
+              mysql -h mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" glpi < /backup/backup.sql
+
+              echo "=== Restore complete! Verifying table count... ==="
+              mysql -h mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e \
+                "SELECT COUNT(*) as tables_count FROM information_schema.tables WHERE table_schema='glpi';"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: root-password
+          volumeMounts:
+            - name: backup-volume
+              mountPath: /backup
+      volumes:
+        - name: backup-volume
+          ***REMOVED*** Варіант: hostPath з локальної ноди k3s
+          ***REMOVED*** Перед запуском: помістити backup.sql на ноду в /tmp/glpi-backup/
+          hostPath:
+            path: /tmp/glpi-backup
+            type: DirectoryOrCreate
+          ***REMOVED*** Альтернатива: PVC (розкоментуй і видали hostPath вище)
+          ***REMOVED*** persistentVolumeClaim:
+          ***REMOVED***   claimName: mariadb-backup
