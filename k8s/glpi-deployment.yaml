@@ -38,7 +38,10 @@ spec:
             - name: GLPI_DB_NAME
               value: glpidb
             - name: GLPI_DB_USER
-              value: glpi_user
+              valueFrom:
+                secretKeyRef:
+                  name: glpi-secret
+                  key: db-user
             - name: GLPI_DB_PASSWORD
               valueFrom:
                 secretKeyRef:

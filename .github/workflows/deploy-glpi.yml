@@ -37,6 +37,7 @@ jobs:
         env:
           GLPI_API_TOKEN: ${{ secrets.GLPI_API_TOKEN }}
           GLPI_CRYPT_KEY: ${{ secrets.GLPI_CRYPT_KEY }}
+          GLPI_DB_USER: ${{ secrets.GLPI_DB_USER }}
         run: |
           kubectl create secret docker-registry dockerhub-secret \
             --docker-server=docker.io \
@@ -47,9 +48,11 @@ jobs:
 
           # GLPI_API_TOKEN  — Bearer token для custom_api.php (openssl rand -hex 32)
           # GLPI_CRYPT_KEY  — вміст glpicrypt.key з продакшн-сервера (optional)
+          # GLPI_DB_USER    — DB username (e.g. glpi_user)
           kubectl create secret generic glpi-secret \
             --from-literal=api-token="${GLPI_API_TOKEN}" \
             --from-literal=crypt-key="${GLPI_CRYPT_KEY}" \
+            --from-literal=db-user="${GLPI_DB_USER}" \
             --namespace=${{ env.K8S_NAMESPACE }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
