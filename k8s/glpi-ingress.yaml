@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: glpi.k8s.YOUR_DOMAIN
+    - host: glpi.k8s.imroman.com
       http:
         paths:
           - path: /
