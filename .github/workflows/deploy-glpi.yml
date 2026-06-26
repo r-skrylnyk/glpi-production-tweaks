@@ -59,9 +59,19 @@ jobs:
           action: deploy
           strategy: basic
           namespace: ${{ env.K8S_NAMESPACE }}
+          timeout: 5m
           manifests: |
             k8s/glpi-pvc.yaml
             k8s/glpi-configmap.yaml
             k8s/glpi-deployment.yaml
             k8s/glpi-service.yaml
             k8s/glpi-ingress.yaml
+
+      - name: Check pod status
+        if: always()
+        run: |
+          echo "=== Pod status ==="
+          kubectl get pods -n ${{ env.K8S_NAMESPACE }}
+          echo ""
+          echo "=== Recent GLPI pod logs ==="
+          kubectl logs -n ${{ env.K8S_NAMESPACE }} -l app=glpi --tail=30 || true
