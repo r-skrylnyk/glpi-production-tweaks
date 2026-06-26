@@ -56,11 +56,17 @@ RUN a2enmod rewrite \
         echo '<VirtualHost *:80>'; \
         echo '    DocumentRoot /var/www/html/glpi/public'; \
         echo '    <Directory /var/www/html/glpi/public>'; \
+        echo '        Options -Indexes +FollowSymLinks'; \
         echo '        AllowOverride All'; \
         echo '        Require all granted'; \
+        echo '        ***REMOVED*** FallbackResource ensures all non-existent paths go through'; \
+        echo '        ***REMOVED*** GLPIs front controller (index.php) regardless of .htaccess'; \
+        echo '        FallbackResource /index.php'; \
         echo '    </Directory>'; \
         echo '</VirtualHost>'; \
-    } > /etc/apache2/sites-available/000-default.conf
+    } > /etc/apache2/sites-available/000-default.conf \
+    ***REMOVED*** Also fix the global apache2.conf AllowOverride that blocks .htaccess in /var/www/
+    && sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
 ***REMOVED*** Download and extract GLPI
 RUN curl -fsSL \
