@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: glpi
+  namespace: glpi
+  annotations:
+    ***REMOVED*** Traefik (k3s default) — SSL термінується на nginx-proxy (YOUR_NGINX_PROXY_IP), тут plain HTTP
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: glpi.YOUR_DOMAIN
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: glpi
+                port:
+                  number: 80

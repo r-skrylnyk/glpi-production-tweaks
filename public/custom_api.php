@@ -23,9 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 header("Content-Type: application/json; charset=UTF-8");
-// Generate a secure token with: openssl rand -hex 32
-// Or use: bin2hex(random_bytes(32))
-define('API_SECRET_TOKEN', 'YOUR_SECURE_TOKEN_HERE');
+// Token is injected via GLPI_API_TOKEN environment variable (k8s Secret: glpi-secret/api-token).
+// Generate with: openssl rand -hex 32
+define('API_SECRET_TOKEN', getenv('GLPI_API_TOKEN') ?: 'YOUR_SECURE_TOKEN_HERE');
 
 // Check for Authorization header or token parameter
 $providedToken = null;

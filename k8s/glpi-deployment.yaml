@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: glpi
+  namespace: glpi
+  labels:
+    app: glpi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: glpi
+  strategy:
+    type: Recreate   ***REMOVED*** PVC не підтримує RWX — тільки один pod за раз
+  template:
+    metadata:
+      labels:
+        app: glpi
+    spec:
+      imagePullSecrets:
+        - name: dockerhub-secret
+      containers:
+        - name: glpi
+          image: YOUR_DOCKERHUB_USERNAME/glpi:latest
+          imagePullPolicy: Always
+          env:
+            - name: GLPI_DB_HOST
+              value: mariadb
+            - name: GLPI_DB_NAME
+              value: glpi
+            - name: GLPI_DB_USER
+              value: glpi
+            - name: GLPI_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: glpi-password
+            - name: GLPI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: glpi-secret
+                  key: api-token
+            ***REMOVED*** Production crypto key — потрібен для розшифровки полів з існуючої БД.
+            ***REMOVED*** Скопіюй вміст glpicrypt.key з продакшн-сервера і додай як GitHub Secret GLPI_CRYPT_KEY.
+            ***REMOVED*** Якщо не вказати — GLPI згенерує новий ключ (зашифровані поля в БД будуть нечитабельні).
+            - name: GLPI_CRYPT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: glpi-secret
+                  key: crypt-key
+                  optional: true   ***REMOVED*** Не падає якщо ключ не вказаний
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: glpi-files
+              mountPath: /var/www/html/glpi/files
+            - name: glpi-plugins
+              mountPath: /var/www/html/glpi/plugins
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: glpi-files
+          persistentVolumeClaim:
+            claimName: glpi-files
+        - name: glpi-plugins
+          persistentVolumeClaim:
+            claimName: glpi-plugins

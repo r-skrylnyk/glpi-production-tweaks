@@ -1,0 +1,30 @@
+---
+***REMOVED*** PVC for GLPI user files: uploads, sessions, cache, logs, etc.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glpi-files
+  namespace: glpi
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 5Gi
+---
+***REMOVED*** PVC for GLPI plugins directory.
+***REMOVED*** After first deploy, copy your plugin files here:
+***REMOVED***   kubectl cp ./plugins/. glpi/<pod>:/var/www/html/glpi/plugins/
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glpi-plugins
+  namespace: glpi
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi

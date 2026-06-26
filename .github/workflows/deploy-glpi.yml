@@ -1,0 +1,105 @@
+name: Build and Deploy GLPI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'Dockerfile'
+      - 'docker/**'
+      - 'core-mods/**'
+      - 'public/**'
+      - 'k8s/glpi-*.yaml'
+      - '.github/workflows/deploy-glpi.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push GLPI image
+        run: |
+          docker build \
+            -t YOUR_DOCKERHUB_USERNAME/glpi:latest \
+            -t YOUR_DOCKERHUB_USERNAME/glpi:11.0.7 \
+            .
+          docker push YOUR_DOCKERHUB_USERNAME/glpi:latest
+          docker push YOUR_DOCKERHUB_USERNAME/glpi:11.0.7
+
+      - name: Add build summary
+        run: |
+          echo "***REMOVED******REMOVED*** Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| \`YOUR_DOCKERHUB_USERNAME/glpi:latest\` | ✅ Pushed |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`YOUR_DOCKERHUB_USERNAME/glpi:11.0.7\` | ✅ Pushed |" >> $GITHUB_STEP_SUMMARY
+
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.K8S_KUBECONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Create Docker Hub pull secret
+        run: |
+          kubectl create secret docker-registry dockerhub-secret \
+            --docker-server=docker.io \
+            --docker-username=${{ secrets.DOCKERHUB_USERNAME }} \
+            --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
+            --namespace=glpi \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create GLPI application secret
+        ***REMOVED*** GLPI_API_TOKEN  — Bearer token для custom_api.php (openssl rand -hex 32)
+        ***REMOVED*** GLPI_CRYPT_KEY  — вміст glpicrypt.key з продакшн-сервера (optional)
+        env:
+          GLPI_API_TOKEN: ${{ secrets.GLPI_API_TOKEN }}
+          GLPI_CRYPT_KEY: ${{ secrets.GLPI_CRYPT_KEY }}
+        run: |
+          kubectl create secret generic glpi-secret \
+            --from-literal=api-token="${GLPI_API_TOKEN}" \
+            --from-literal=crypt-key="${GLPI_CRYPT_KEY}" \
+            --namespace=glpi \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Apply PVCs
+        run: kubectl apply -f k8s/glpi-pvc.yaml
+
+      - name: Deploy GLPI
+        run: |
+          kubectl apply -f k8s/glpi-deployment.yaml
+          kubectl apply -f k8s/glpi-service.yaml
+          kubectl apply -f k8s/glpi-ingress.yaml
+
+      - name: Wait for GLPI rollout
+        run: kubectl rollout status deployment/glpi -n glpi --timeout=5m
+
+      - name: Add deploy summary
+        run: |
+          echo "***REMOVED******REMOVED*** Deploy Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| URL | http://glpi.YOUR_DOMAIN |" >> $GITHUB_STEP_SUMMARY
+          echo "| Image | \`YOUR_DOCKERHUB_USERNAME/glpi:latest\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Namespace | \`glpi\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| DB host | \`mariadb.glpi.svc.cluster.local\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> **Note:** If you have plugins, copy them after deploy:" >> $GITHUB_STEP_SUMMARY
+          echo '> ```bash' >> $GITHUB_STEP_SUMMARY
+          echo "> kubectl cp ./plugins/. glpi/\$(kubectl get pod -n glpi -l app=glpi -o jsonpath='{.items[0].metadata.name}'):/var/www/html/glpi/plugins/" >> $GITHUB_STEP_SUMMARY
+          echo '> ```' >> $GITHUB_STEP_SUMMARY
