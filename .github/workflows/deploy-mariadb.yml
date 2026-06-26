@@ -53,7 +53,7 @@ jobs:
           kubectl apply -f k8s/mariadb-service.yaml
 
       - name: Wait for MariaDB to be ready
-        run: kubectl rollout status deployment/mariadb -n glpi --timeout=120s
+        run: kubectl rollout status deployment/mariadb -n glpi --timeout=5m
 
       - name: Add deploy summary
         run: |

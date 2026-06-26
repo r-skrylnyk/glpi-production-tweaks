@@ -42,24 +42,19 @@ spec:
               mountPath: /var/lib/mysql
           livenessProbe:
             exec:
-              command:
-                - sh
-                - -c
-                - mysqladmin ping -h 127.0.0.1 --silent
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
+              ***REMOVED*** healthcheck.sh вбудований в офіційний mariadb образ — найнадійніший варіант
+              command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+            initialDelaySeconds: 90   ***REMOVED*** Перша ініціалізація data directory займає 60-90 сек
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 5
           readinessProbe:
             exec:
-              command:
-                - sh
-                - -c
-                - mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT 1" --silent
-            initialDelaySeconds: 20
-            periodSeconds: 5
-            timeoutSeconds: 3
-            failureThreshold: 3
+              command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           resources:
             requests:
               memory: "256Mi"
