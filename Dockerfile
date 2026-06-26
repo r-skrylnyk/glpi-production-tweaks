@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         gettext \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
+        bcmath \
         curl \
         gd \
         intl \
@@ -53,6 +54,8 @@ RUN { \
 ***REMOVED*** GLPI 10+/11+ serves from the public/ subdirectory, NOT the root
 RUN a2enmod rewrite \
     && { \
+        echo 'ServerName localhost'; \
+        echo ''; \
         echo '<VirtualHost *:80>'; \
         echo '    DocumentRoot /var/www/html/glpi/public'; \
         echo '    <Directory /var/www/html/glpi/public>'; \
