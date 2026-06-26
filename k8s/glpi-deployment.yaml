@@ -36,14 +36,14 @@ spec:
             - name: GLPI_DB_PORT
               value: "3306"
             - name: GLPI_DB_NAME
-              value: your_glpi_database
+              value: glpi
             - name: GLPI_DB_USER
-              value: your_your_glpi_user
+              value: glpi
             - name: GLPI_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mariadb-secret
-                  key: glpi-user-password
+                  key: glpi-password
           ports:
             - containerPort: 80
           volumeMounts:
