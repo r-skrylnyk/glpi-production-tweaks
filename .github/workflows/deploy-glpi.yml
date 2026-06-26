@@ -14,6 +14,9 @@ on:
 
 jobs:
   build:
+    ***REMOVED*** Disabled: using official glpi/glpi:11.0.7 image directly.
+    ***REMOVED*** Re-enable when core-mods or custom_api.php need to be baked into YOUR_DOCKERHUB_USERNAME/glpi.
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -77,8 +80,10 @@ jobs:
             --namespace=glpi \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Apply PVCs
-        run: kubectl apply -f k8s/glpi-pvc.yaml
+      - name: Apply PVCs and ConfigMap
+        run: |
+          kubectl apply -f k8s/glpi-pvc.yaml
+          kubectl apply -f k8s/glpi-configmap.yaml
 
       - name: Deploy GLPI
         run: |

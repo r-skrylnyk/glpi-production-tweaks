@@ -11,21 +11,30 @@ spec:
     matchLabels:
       app: glpi
   strategy:
-    type: Recreate   ***REMOVED*** PVC не підтримує RWX — тільки один pod за раз
+    type: Recreate   ***REMOVED*** GLPI не підтримує кілька інстансів одночасно — блокування БД
   template:
     metadata:
       labels:
         app: glpi
     spec:
-      imagePullSecrets:
-        - name: dockerhub-secret
+      ***REMOVED*** Автоматично виставляє права www-data (uid 33) на PVC при першому монтуванні
+      securityContext:
+        fsGroup: 33
       containers:
         - name: glpi
-          image: YOUR_DOCKERHUB_USERNAME/glpi:latest
+          ***REMOVED*** Офіційний образ — містить правильний Apache, всі PHP extensions, auto-генерацію config_db.php
+          ***REMOVED*** Кастомний YOUR_DOCKERHUB_USERNAME/glpi:latest використовується тільки при необхідності core-mods/plugins
+          image: glpi/glpi:11.0.7
           imagePullPolicy: Always
           env:
+            - name: TIMEZONE
+              value: "Europe/Kyiv"
+            - name: PHP_INI_memory_limit
+              value: "512M"
             - name: GLPI_DB_HOST
               value: mariadb
+            - name: GLPI_DB_PORT
+              value: "3306"
             - name: GLPI_DB_NAME
               value: your_glpi_database
             - name: GLPI_DB_USER
@@ -35,27 +44,17 @@ spec:
                 secretKeyRef:
                   name: mariadb-secret
                   key: glpi-user-password
-            - name: GLPI_API_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: glpi-secret
-                  key: api-token
-            ***REMOVED*** Production crypto key — потрібен для розшифровки полів з існуючої БД.
-            ***REMOVED*** Скопіюй вміст glpicrypt.key з продакшн-сервера і додай як GitHub Secret GLPI_CRYPT_KEY.
-            ***REMOVED*** Якщо не вказати — GLPI згенерує новий ключ (зашифровані поля в БД будуть нечитабельні).
-            - name: GLPI_CRYPT_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: glpi-secret
-                  key: crypt-key
-                  optional: true   ***REMOVED*** Не падає якщо ключ не вказаний
           ports:
             - containerPort: 80
           volumeMounts:
-            - name: glpi-files
-              mountPath: /var/www/html/glpi/files
-            - name: glpi-plugins
-              mountPath: /var/www/html/glpi/plugins
+            ***REMOVED*** Єдиний PVC для всіх даних GLPI (config, files, logs, plugins, glpicrypt.key)
+            - name: glpi-data
+              mountPath: /var/glpi
+            ***REMOVED*** local_define.php — HTTPS secure cookies за nginx reverse proxy
+            - name: glpi-config
+              mountPath: /var/www/glpi/config/local_define.php
+              subPath: local_define.php
+              readOnly: true
           livenessProbe:
             tcpSocket:
               port: 80
@@ -76,12 +75,12 @@ spec:
               memory: "256Mi"
               cpu: "100m"
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "1Gi"
+              cpu: "1000m"
       volumes:
-        - name: glpi-files
+        - name: glpi-data
           persistentVolumeClaim:
-            claimName: glpi-files
-        - name: glpi-plugins
-          persistentVolumeClaim:
-            claimName: glpi-plugins
+            claimName: glpi-data
+        - name: glpi-config
+          configMap:
+            name: glpi-config

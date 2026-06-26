@@ -1,9 +1,10 @@
 ---
-***REMOVED*** PVC for GLPI user files: uploads, sessions, cache, logs, etc.
+***REMOVED*** PVC for official GLPI image — stores config, files, logs, plugins, crypto key.
+***REMOVED*** Official image uses /var/glpi as its data directory.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: glpi-files
+  name: glpi-data
   namespace: glpi
 spec:
   accessModes:
@@ -11,20 +12,6 @@ spec:
   storageClassName: local-path
   resources:
     requests:
-      storage: 5Gi
+      storage: 10Gi
 ---
-***REMOVED*** PVC for GLPI plugins directory.
-***REMOVED*** After first deploy, copy your plugin files here:
-***REMOVED***   kubectl cp ./plugins/. glpi/<pod>:/var/www/html/glpi/plugins/
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: glpi-plugins
-  namespace: glpi
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: local-path
-  resources:
-    requests:
-      storage: 2Gi
+***REMOVED*** Legacy PVCs kept for reference (used by custom YOUR_DOCKERHUB_USERNAME/glpi image builds)

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: glpi-config
+  namespace: glpi
+data:
+  local_define.php: |
+    <?php
+    // GLPI runs behind an SSL-terminating nginx reverse proxy (YOUR_NGINX_PROXY_IP).
+    // nginx sends X-Forwarded-Proto: https to the backend.
+    // This file forces GLPI to use HTTPS secure cookies regardless of backend protocol.
+    define('GLPI_FORCE_SSL', 1);

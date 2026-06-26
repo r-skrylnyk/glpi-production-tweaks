@@ -1,6 +1,7 @@
-FROM php:8.3-apache
-
-ARG GLPI_VERSION=11.0.7
+***REMOVED*** Use official GLPI image as base.
+***REMOVED*** For dev/test without custom mods — deploy glpi/glpi:11.0.7 directly (see deploy-glpi.yml).
+***REMOVED*** This Dockerfile is used when core-mods or custom_api.php need to be baked in.
+FROM glpi/glpi:11.0.7
 
 ***REMOVED*** System dependencies + PHP extensions required by GLPI
 RUN apt-get update && apt-get install -y --no-install-recommends \
