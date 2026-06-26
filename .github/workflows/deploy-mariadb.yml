@@ -30,12 +30,17 @@ jobs:
         run: kubectl apply -f k8s/namespace.yaml
 
       - name: Create MariaDB credentials secret
+        ***REMOVED*** Secrets передаються через env: щоб уникнути проблем зі спецсимволами
+        ***REMOVED*** в паролях (base64 може містити +, /, =) при прямій підстановці в shell.
         ***REMOVED*** Паттерн --dry-run=client -o yaml | kubectl apply -f - ідемпотентний:
         ***REMOVED*** створює secret якщо немає, оновлює якщо є (без помилки "already exists")
+        env:
+          MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
+          MARIADB_GLPI_PASSWORD: ${{ secrets.MARIADB_GLPI_PASSWORD }}
         run: |
           kubectl create secret generic mariadb-secret \
-            --from-literal=root-password=${{ secrets.MARIADB_ROOT_PASSWORD }} \
-            --from-literal=glpi-password=${{ secrets.MARIADB_GLPI_PASSWORD }} \
+            --from-literal=root-password="${MARIADB_ROOT_PASSWORD}" \
+            --from-literal=glpi-password="${MARIADB_GLPI_PASSWORD}" \
             --namespace=glpi \
             --dry-run=client -o yaml | kubectl apply -f -
 
