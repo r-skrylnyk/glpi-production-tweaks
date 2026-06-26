@@ -37,10 +37,12 @@ jobs:
         env:
           MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
           MARIADB_GLPI_PASSWORD: ${{ secrets.MARIADB_GLPI_PASSWORD }}
+          MARIADB_GLPI_USER_PASSWORD: ${{ secrets.MARIADB_GLPI_USER_PASSWORD }}
         run: |
           kubectl create secret generic mariadb-secret \
             --from-literal=root-password="${MARIADB_ROOT_PASSWORD}" \
             --from-literal=glpi-password="${MARIADB_GLPI_PASSWORD}" \
+            --from-literal=glpi-user-password="${MARIADB_GLPI_USER_PASSWORD}" \
             --namespace=glpi \
             --dry-run=client -o yaml | kubectl apply -f -
 

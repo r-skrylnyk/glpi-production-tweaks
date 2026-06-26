@@ -27,14 +27,14 @@ spec:
             - name: GLPI_DB_HOST
               value: mariadb
             - name: GLPI_DB_NAME
-              value: glpi
+              value: your_glpi_database
             - name: GLPI_DB_USER
-              value: glpi
+              value: your_glpi_user
             - name: GLPI_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mariadb-secret
-                  key: glpi-password
+                  key: glpi-user-password
             - name: GLPI_API_TOKEN
               valueFrom:
                 secretKeyRef:
