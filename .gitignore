@@ -1,12 +1,12 @@
-***REMOVED*** Ignore database dumps and archives
+﻿# Ignore database dumps and archives
 *.sql
 *.gz
 *.zip
 
-***REMOVED*** Ignore environment configuration files
+# Ignore environment configuration files
 config_db.php
 .env
 
-***REMOVED*** Ignore system files
+# Ignore system files
 .DS_Store
 Thumbs.db

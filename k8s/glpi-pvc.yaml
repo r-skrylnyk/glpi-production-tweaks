@@ -1,6 +1,6 @@
----
-***REMOVED*** PVC for official GLPI image — stores config, files, logs, plugins, crypto key.
-***REMOVED*** Official image uses /var/glpi as its data directory.
+﻿---
+# PVC for official GLPI image — stores config, files, logs, plugins, crypto key.
+# Official image uses /var/glpi as its data directory.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -14,4 +14,4 @@ spec:
     requests:
       storage: 10Gi
 ---
-***REMOVED*** Legacy PVCs kept for reference (used by custom image builds)
+# Legacy PVCs kept for reference (used by custom image builds)

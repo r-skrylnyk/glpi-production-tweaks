@@ -1,10 +1,10 @@
-name: Deploy GLPI — MariaDB
+﻿name: Deploy GLPI — MariaDB
 
 on:
-  workflow_dispatch:   ***REMOVED*** Ручний запуск з GitHub UI
+  workflow_dispatch:   # Ручний запуск з GitHub UI
   push:
     branches: [main]
-    paths:             ***REMOVED*** Авто-деплой тільки при змінах в цих файлах
+    paths:             # Авто-деплой тільки при змінах в цих файлах
       - 'k8s/namespace.yaml'
       - 'k8s/mariadb-*.yaml'
       - '.github/workflows/deploy-mariadb.yml'
@@ -30,10 +30,10 @@ jobs:
         run: kubectl apply -f k8s/namespace.yaml
 
       - name: Create MariaDB credentials secret
-        ***REMOVED*** Secrets передаються через env: щоб уникнути проблем зі спецсимволами
-        ***REMOVED*** в паролях (base64 може містити +, /, =) при прямій підстановці в shell.
-        ***REMOVED*** Паттерн --dry-run=client -o yaml | kubectl apply -f - ідемпотентний:
-        ***REMOVED*** створює secret якщо немає, оновлює якщо є (без помилки "already exists")
+        # Secrets передаються через env: щоб уникнути проблем зі спецсимволами
+        # в паролях (base64 може містити +, /, =) при прямій підстановці в shell.
+        # Паттерн --dry-run=client -o yaml | kubectl apply -f - ідемпотентний:
+        # створює secret якщо немає, оновлює якщо є (без помилки "already exists")
         env:
           MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
           MARIADB_GLPI_PASSWORD: ${{ secrets.MARIADB_GLPI_PASSWORD }}
@@ -59,7 +59,7 @@ jobs:
 
       - name: Add deploy summary
         run: |
-          echo "***REMOVED******REMOVED*** MariaDB Deploy Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## MariaDB Deploy Summary" >> $GITHUB_STEP_SUMMARY
           echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Namespace | \`glpi\` |" >> $GITHUB_STEP_SUMMARY
@@ -69,7 +69,7 @@ jobs:
           echo "| Internal host | \`mariadb.glpi.svc.cluster.local:3306\` |" >> $GITHUB_STEP_SUMMARY
           echo "| PVC | \`mariadb-data\` (5Gi, local-path) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "***REMOVED******REMOVED******REMOVED*** Restore DB (quick):" >> $GITHUB_STEP_SUMMARY
+          echo "### Restore DB (quick):" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
           echo "kubectl cp ./backup.sql glpi/\$(kubectl get pod -n glpi -l app=mariadb -o jsonpath='{.items[0].metadata.name}'):/tmp/backup.sql" >> $GITHUB_STEP_SUMMARY
           echo "kubectl exec -n glpi deploy/mariadb -- sh -c 'mysql -u root -p\"\${MYSQL_ROOT_PASSWORD}\" glpi < /tmp/backup.sql'" >> $GITHUB_STEP_SUMMARY

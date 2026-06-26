@@ -1,13 +1,13 @@
-***REMOVED******REMOVED*** File: `src/Computer.php`
+﻿## File: `src/Computer.php`
 
-***REMOVED******REMOVED******REMOVED*** Goal
+### Goal
 Simplify the "Computer" asset view by hiding irrelevant tabs for our workflow.
 Modified method: `public function defineTabs($options = [])`.
 
-***REMOVED******REMOVED******REMOVED***  Visibility Status
+###  Visibility Status
 Based on the current configuration, here is the breakdown of tabs:
 
-***REMOVED******REMOVED*** Visible (Active)
+## Visible (Active)
 These tabs are **enabled** for technicians:
 - **Default Main Tab** (General Info)
 - **Components** (`Item_Devices`) - RAM, CPU, GPU, etc.
@@ -23,7 +23,7 @@ These tabs are **enabled** for technicians:
 - **History** (`Log`) - Audit log
 - **Rule Logs** (`RuleMatchedLog`)
 
-***REMOVED******REMOVED*** Hidden (Commented Out)
+## Hidden (Commented Out)
 These tabs are **disabled** in code to reduce clutter:
 - **Impact Analysis** (`addImpactTab`)
 - **Operating System** (`Item_OperatingSystem`) *(Managed via Inventory)*
@@ -44,7 +44,7 @@ These tabs are **disabled** in code to reduce clutter:
 - **Appliances** (`Appliance_Item`)
 - **Databases** (`DatabaseInstance`)
 
-***REMOVED******REMOVED******REMOVED*** How to customize
+### How to customize
 To restore any tab, open `src/Computer.php` and uncomment the corresponding line (remove `//`).
 
 **Example - Restoring Antivirus tab:**
@@ -59,10 +59,10 @@ php
 ->addStandardTab(ItemAntivirus::class, $ong, $options)
 
 
-***REMOVED******REMOVED*** Start. Don't forget to make the script executable:
+## Start. Don't forget to make the script executable:
 
 chmod +x scripts/deploy_mods.sh
 
-***REMOVED******REMOVED******REMOVED*** Run the deploy script (adjust paths inside the script first):
+### Run the deploy script (adjust paths inside the script first):
 
 sudo ./scripts/deploy_mods.sh

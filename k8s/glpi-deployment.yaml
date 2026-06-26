@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: glpi
@@ -11,19 +11,19 @@ spec:
     matchLabels:
       app: glpi
   strategy:
-    type: Recreate   ***REMOVED*** GLPI не підтримує кілька інстансів одночасно — блокування БД
+    type: Recreate   # GLPI не підтримує кілька інстансів одночасно — блокування БД
   template:
     metadata:
       labels:
         app: glpi
     spec:
-      ***REMOVED*** Автоматично виставляє права www-data (uid 33) на PVC при першому монтуванні
+      # Автоматично виставляє права www-data (uid 33) на PVC при першому монтуванні
       securityContext:
         fsGroup: 33
       containers:
         - name: glpi
-          ***REMOVED*** Офіційний образ — містить правильний Apache, всі PHP extensions, auto-генерацію config_db.php
-          ***REMOVED*** Custom image can be used instead when core-mods/plugins need to be baked in
+          # Офіційний образ — містить правильний Apache, всі PHP extensions, auto-генерацію config_db.php
+          # Custom image can be used instead when core-mods/plugins need to be baked in
           image: glpi/glpi:11.0.8
           imagePullPolicy: Always
           env:
@@ -47,10 +47,10 @@ spec:
           ports:
             - containerPort: 80
           volumeMounts:
-            ***REMOVED*** Єдиний PVC для всіх даних GLPI (config, files, logs, plugins, glpicrypt.key)
+            # Єдиний PVC для всіх даних GLPI (config, files, logs, plugins, glpicrypt.key)
             - name: glpi-data
               mountPath: /var/glpi
-            ***REMOVED*** local_define.php — HTTPS secure cookies за nginx reverse proxy
+            # local_define.php — HTTPS secure cookies за nginx reverse proxy
             - name: glpi-config
               mountPath: /var/www/glpi/config/local_define.php
               subPath: local_define.php

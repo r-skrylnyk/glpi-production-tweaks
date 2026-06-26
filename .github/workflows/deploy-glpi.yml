@@ -1,4 +1,4 @@
-name: Deploy GLPI
+﻿name: Deploy GLPI
 
 on:
   workflow_dispatch:
@@ -45,8 +45,8 @@ jobs:
             --namespace=${{ env.K8S_NAMESPACE }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
-          ***REMOVED*** GLPI_API_TOKEN  — Bearer token для custom_api.php (openssl rand -hex 32)
-          ***REMOVED*** GLPI_CRYPT_KEY  — вміст glpicrypt.key з продакшн-сервера (optional)
+          # GLPI_API_TOKEN  — Bearer token для custom_api.php (openssl rand -hex 32)
+          # GLPI_CRYPT_KEY  — вміст glpicrypt.key з продакшн-сервера (optional)
           kubectl create secret generic glpi-secret \
             --from-literal=api-token="${GLPI_API_TOKEN}" \
             --from-literal=crypt-key="${GLPI_CRYPT_KEY}" \

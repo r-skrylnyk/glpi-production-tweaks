@@ -1,4 +1,4 @@
-apiVersion: v1
+﻿apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mariadb-data
@@ -6,7 +6,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-path   ***REMOVED*** k3s default storage class
+  storageClassName: local-path   # k3s default storage class
   resources:
     requests:
       storage: 5Gi

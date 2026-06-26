@@ -1,9 +1,9 @@
-***REMOVED*** Use official GLPI image as base.
-***REMOVED*** For dev/test without custom mods — deploy glpi/glpi:11.0.7 directly (see deploy-glpi.yml).
-***REMOVED*** This Dockerfile is used when core-mods or custom_api.php need to be baked in.
+﻿# Use official GLPI image as base.
+# For dev/test without custom mods — deploy glpi/glpi:11.0.7 directly (see deploy-glpi.yml).
+# This Dockerfile is used when core-mods or custom_api.php need to be baked in.
 FROM glpi/glpi:11.0.7
 
-***REMOVED*** System dependencies + PHP extensions required by GLPI
+# System dependencies + PHP extensions required by GLPI
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpng-dev \
         libjpeg62-turbo-dev \
@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-***REMOVED*** PHP tuning for GLPI
+# PHP tuning for GLPI
 RUN { \
         echo 'opcache.memory_consumption=128'; \
         echo 'opcache.interned_strings_buffer=8'; \
@@ -51,8 +51,8 @@ RUN { \
         echo 'session.cookie_httponly = On'; \
     } > /usr/local/etc/php/conf.d/glpi.ini
 
-***REMOVED*** Enable Apache rewrite module + configure VirtualHost
-***REMOVED*** GLPI 10+/11+ serves from the public/ subdirectory, NOT the root
+# Enable Apache rewrite module + configure VirtualHost
+# GLPI 10+/11+ serves from the public/ subdirectory, NOT the root
 RUN a2enmod rewrite \
     && { \
         echo 'ServerName localhost'; \
@@ -63,16 +63,16 @@ RUN a2enmod rewrite \
         echo '        Options -Indexes +FollowSymLinks'; \
         echo '        AllowOverride All'; \
         echo '        Require all granted'; \
-        echo '        ***REMOVED*** FallbackResource ensures all non-existent paths go through'; \
-        echo '        ***REMOVED*** GLPIs front controller (index.php) regardless of .htaccess'; \
+        echo '        # FallbackResource ensures all non-existent paths go through'; \
+        echo '        # GLPIs front controller (index.php) regardless of .htaccess'; \
         echo '        FallbackResource /index.php'; \
         echo '    </Directory>'; \
         echo '</VirtualHost>'; \
     } > /etc/apache2/sites-available/000-default.conf \
-    ***REMOVED*** Also fix the global apache2.conf AllowOverride that blocks .htaccess in /var/www/
+    # Also fix the global apache2.conf AllowOverride that blocks .htaccess in /var/www/
     && sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
-***REMOVED*** Download and extract GLPI
+# Download and extract GLPI
 RUN curl -fsSL \
         "https://github.com/glpi-project/glpi/releases/download/${GLPI_VERSION}/glpi-${GLPI_VERSION}.tgz" \
         -o /tmp/glpi.tgz \
@@ -81,13 +81,13 @@ RUN curl -fsSL \
     && chown -R www-data:www-data /var/www/html/glpi \
     && chmod -R 755 /var/www/html/glpi
 
-***REMOVED*** Custom API endpoint
+# Custom API endpoint
 COPY public/custom_api.php /var/www/html/glpi/public/custom_api.php
 
 RUN chown www-data:www-data \
         /var/www/html/glpi/public/custom_api.php
 
-***REMOVED*** Startup scripts
+# Startup scripts
 COPY docker/generate-config.php /docker/generate-config.php
 COPY docker/entrypoint.sh       /entrypoint.sh
 RUN chmod +x /entrypoint.sh

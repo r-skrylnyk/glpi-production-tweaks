@@ -1,11 +1,11 @@
-apiVersion: networking.k8s.io/v1
+﻿apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: website-dev
   namespace: website-dev
   annotations:
-    ***REMOVED*** Traefik (k3s default ingress controller)
-    ***REMOVED*** SSL термінується на домашньому Nginx proxy, тут plain HTTP
+    # Traefik (k3s default ingress controller)
+    # SSL термінується на домашньому Nginx proxy, тут plain HTTP
     traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   ingressClassName: traefik

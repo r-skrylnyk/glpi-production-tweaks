@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mariadb
@@ -11,7 +11,7 @@ spec:
     matchLabels:
       app: mariadb
   strategy:
-    type: Recreate   ***REMOVED*** Обов'язково для PVC — не може бути 2 pods на одному томі
+    type: Recreate   # Обов'язково для PVC — не може бути 2 pods на одному томі
   template:
     metadata:
       labels:
@@ -42,9 +42,9 @@ spec:
               mountPath: /var/lib/mysql
           livenessProbe:
             exec:
-              ***REMOVED*** healthcheck.sh вбудований в офіційний mariadb образ — найнадійніший варіант
+              # healthcheck.sh вбудований в офіційний mariadb образ — найнадійніший варіант
               command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
-            initialDelaySeconds: 90   ***REMOVED*** Перша ініціалізація data directory займає 60-90 сек
+            initialDelaySeconds: 90   # Перша ініціалізація data directory займає 60-90 сек
             periodSeconds: 15
             timeoutSeconds: 10
             failureThreshold: 5

@@ -1,4 +1,4 @@
-***REMOVED*** k3s + nginx-proxy: Dev Environment Setup & Troubleshooting
+﻿# k3s + nginx-proxy: Dev Environment Setup & Troubleshooting
 
 **Environment:** Home k3s cluster behind MikroTik NAT, nginx-proxy as SSL terminator  
 **Goal:** Deploy `dev.k8s.YOUR_DOMAIN` via GitHub Actions CI/CD  
@@ -8,7 +8,7 @@
 
 ---
 
-***REMOVED******REMOVED*** Case 1 — GitHub Actions не міг достукатись до k3s API
+## Case 1 — GitHub Actions не міг достукатись до k3s API
 
 **Симптом:**
 ```
@@ -39,7 +39,7 @@ GitHub Actions runner знаходиться в інтернеті і фізич
    ```bash
    sudo openssl s_client -connect 127.0.0.1:6443 2>/dev/null \
      | openssl x509 -noout -text | grep -A1 "Subject Alternative"
-   ***REMOVED*** Має бути: IP Address:YOUR_PUBLIC_IP
+   # Має бути: IP Address:YOUR_PUBLIC_IP
    ```
 
 4. Згенерувати kubeconfig з публічним IP:
@@ -57,7 +57,7 @@ dst-address=YOUR_PUBLIC_IP dst-port=6443
 
 ---
 
-***REMOVED******REMOVED*** Case 2 — ImagePullBackOff: k3s не міг стягнути приватний образ
+## Case 2 — ImagePullBackOff: k3s не міг стягнути приватний образ
 
 **Симптом:**
 ```
@@ -100,12 +100,12 @@ spec:
 
 ---
 
-***REMOVED******REMOVED*** Case 3 — SSL сертифікат не покривав `dev.k8s.YOUR_DOMAIN`
+## Case 3 — SSL сертифікат не покривав `dev.k8s.YOUR_DOMAIN`
 
 **Симптом:**
 ```bash
 curl -I https://dev.k8s.YOUR_DOMAIN
-***REMOVED*** SSL certificate problem: unable to get local issuer certificate
+# SSL certificate problem: unable to get local issuer certificate
 ```
 
 **Причина:**  
@@ -115,7 +115,7 @@ Certbot та Let's Encrypt не були встановлені.
 **Рішення:**
 
 ```bash
-***REMOVED*** На nginx-proxy (YOUR_NGINX_PROXY_IP)
+# На nginx-proxy (YOUR_NGINX_PROXY_IP)
 apt install certbot python3-certbot-nginx -y
 certbot --nginx -d dev.k8s.YOUR_DOMAIN
 ```
@@ -134,7 +134,7 @@ upstream k8s_backend {
 server {
     listen 443 ssl http2;
     server_name *.k8s.YOUR_DOMAIN;
-    ***REMOVED*** ... proxy_pass http://k8s_backend;
+    # ... proxy_pass http://k8s_backend;
 }
 ```
 
@@ -142,7 +142,7 @@ server {
 
 ---
 
-***REMOVED******REMOVED*** Case 4 — Docker build: `COPY fonts/` — директорія не існує
+## Case 4 — Docker build: `COPY fonts/` — директорія не існує
 
 **Симптом:**
 ```
@@ -158,17 +158,17 @@ ERROR: failed to calculate checksum of ref ...: "/fonts": not found
 Видалити рядок `COPY fonts/` з `web-dev` stage.
 
 ```dockerfile
-***REMOVED*** Stage: web-dev
+# Stage: web-dev
 FROM nginx:alpine AS web-dev
 COPY index.html style.css fonts.css robots.txt /usr/share/nginx/html/
 COPY assets/ /usr/share/nginx/html/assets/
 COPY wall/ /usr/share/nginx/html/wall/
-***REMOVED*** fonts/ НЕ копіюємо окремо — вони вже є в assets/fonts/
+# fonts/ НЕ копіюємо окремо — вони вже є в assets/fonts/
 ```
 
 ---
 
-***REMOVED******REMOVED*** Case 5 — Production build: `docker cp /dist` падав після додавання нового stage
+## Case 5 — Production build: `docker cp /dist` падав після додавання нового stage
 
 **Симптом:**
 ```
@@ -187,11 +187,11 @@ Error response from daemon: Could not find the file /dist in container temp-cont
 ```yaml
 - name: Build and Push image
   run: |
-    ***REMOVED*** web image для Docker Compose на сервері
+    # web image для Docker Compose на сервері
     docker build --target web -t YOUR_DOCKERHUB_USERNAME/library:production .
     docker push YOUR_DOCKERHUB_USERNAME/library:production
 
-    ***REMOVED*** artifact image для extract /dist через SCP
+    # artifact image для extract /dist через SCP
     docker build --target artifact -t YOUR_DOCKERHUB_USERNAME/library:latest .
 
 - name: Extract files from container
@@ -203,7 +203,7 @@ Error response from daemon: Could not find the file /dist in container temp-cont
 
 ---
 
-***REMOVED******REMOVED*** Dockerfile — Stage Overview
+## Dockerfile — Stage Overview
 
 | Stage | Base | Призначення |
 |-------|------|-------------|
@@ -214,7 +214,7 @@ Error response from daemon: Could not find the file /dist in container temp-cont
 
 ---
 
-***REMOVED******REMOVED*** CI/CD Flow — Dev Branch
+## CI/CD Flow — Dev Branch
 
 ```
 push → development

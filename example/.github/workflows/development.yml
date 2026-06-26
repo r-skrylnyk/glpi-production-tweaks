@@ -1,4 +1,4 @@
-name: Tests and Deploy to Development Server
+﻿name: Tests and Deploy to Development Server
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   performance:
-    if: false  ***REMOVED*** Disabled on dev — slows down pipeline
+    if: false  # Disabled on dev — slows down pipeline
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,7 +24,7 @@ jobs:
           npx lighthouse http://localhost:8080 --quiet --chrome-flags="--headless" --output=json --output-path=report.json || true
 
   lint:
-    if: false  ***REMOVED*** Disabled on dev — slows down pipeline
+    if: false  # Disabled on dev — slows down pipeline
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,19 +63,19 @@ jobs:
 
     - name: Build and Push image (copy custom obfuscate logic and app versions)
       run: |
-        ***REMOVED*** web-dev image (nginx:alpine) — без обфускації, для dev k8s
+        # web-dev image (nginx:alpine) — без обфускації, для dev k8s
         docker build --target web-dev -t YOUR_DOCKERHUB_USERNAME/library:dev .
         docker push YOUR_DOCKERHUB_USERNAME/library:dev
 
     - name: Add build summary
       run: |
-        echo "***REMOVED******REMOVED*** 🏗️ Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "## 🏗️ Build Summary" >> $GITHUB_STEP_SUMMARY
         echo "✅ Docker image successfully built and pushed!" >> $GITHUB_STEP_SUMMARY
         echo "- **Image:** YOUR_DOCKERHUB_USERNAME/library:dev (nginx, no obfuscation)" >> $GITHUB_STEP_SUMMARY
       
 
   deploy:
-    if: false  ***REMOVED*** Old server (159.224.220.23) no longer exists — using deploy-k8s instead
+    if: false  # Old server (159.224.220.23) no longer exists — using deploy-k8s instead
     needs: [build]
     runs-on: ubuntu-latest
 
@@ -88,7 +88,7 @@ jobs:
 
         
     - name: Deploy via SSH
-      uses: appleboy/scp-action@v0.1.6  ***REMOVED*** Корректная версия
+      uses: appleboy/scp-action@v0.1.6  # Корректная версия
       with:
         host: ${{ secrets.SERVER_IP }}
         username: ${{ secrets.SERVER_USER }}
@@ -100,7 +100,7 @@ jobs:
         overwrite: true
 
     - name: Restart Nginx
-      uses: appleboy/ssh-action@v0.1.2  ***REMOVED*** Стабильная версия
+      uses: appleboy/ssh-action@v0.1.2  # Стабильная версия
       with:
         host: ${{ secrets.SERVER_IP }}
         username: ${{ secrets.SERVER_USER }}
@@ -137,7 +137,7 @@ jobs:
 
     - name: Add deployment summary
       run: |
-        echo "***REMOVED******REMOVED*** 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
         echo "✅ Successfully deployed to server! 159.224.220.23" >> $GITHUB_STEP_SUMMARY
         echo "<a href='http://159.224.220.23:9852' target='_blank'>🔗 Open website</a>" >> $GITHUB_STEP_SUMMARY
 
@@ -183,7 +183,7 @@ jobs:
 
     - name: Add k8s summary
       run: |
-        echo "***REMOVED******REMOVED*** ☸️ k8s Deployment" >> $GITHUB_STEP_SUMMARY
+        echo "## ☸️ k8s Deployment" >> $GITHUB_STEP_SUMMARY
         echo "✅ Deployed to k3s home cluster" >> $GITHUB_STEP_SUMMARY
         echo "- **Image:** YOUR_DOCKERHUB_USERNAME/library:dev" >> $GITHUB_STEP_SUMMARY
         echo "- **URL:** https://dev.k8s.YOUR_DOMAIN" >> $GITHUB_STEP_SUMMARY

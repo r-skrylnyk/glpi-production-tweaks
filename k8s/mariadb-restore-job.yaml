@@ -1,30 +1,30 @@
-***REMOVED*** ---------------------------------------------------------------------------
-***REMOVED*** MariaDB Restore Job — шаблон для відновлення бази даних
-***REMOVED*** ---------------------------------------------------------------------------
-***REMOVED***
-***REMOVED*** ВАРІАНТ A — Швидкий restore через kubectl (рекомендовано для тесту):
-***REMOVED***
-***REMOVED***   ***REMOVED*** Крок 1: скопіювати бекап в pod
-***REMOVED***   kubectl cp ./glpi-backup.sql glpi/$(kubectl get pod -n glpi -l app=mariadb -o jsonpath='{.items[0].metadata.name}'):/tmp/backup.sql
-***REMOVED***
-***REMOVED***   ***REMOVED*** Крок 2: відновити базу
-***REMOVED***   kubectl exec -n glpi deploy/mariadb -- \
-***REMOVED***     sh -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" glpi < /tmp/backup.sql'
-***REMOVED***
-***REMOVED***   ***REMOVED*** Крок 3: перевірити
-***REMOVED***   kubectl exec -n glpi deploy/mariadb -- \
-***REMOVED***     sh -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SHOW TABLES IN glpi;"'
-***REMOVED***
-***REMOVED*** ---------------------------------------------------------------------------
-***REMOVED***
-***REMOVED*** ВАРІАНТ B — Kubernetes Job (якщо бекап вже є на ноді k3s):
-***REMOVED***
-***REMOVED***   1. Помістити backup.sql на ноду: /tmp/glpi-backup/backup.sql
-***REMOVED***   2. kubectl apply -f k8s/mariadb-restore-job.yaml
-***REMOVED***   3. Слідкувати: kubectl logs -n glpi job/mariadb-restore -f
-***REMOVED***   4. Після завершення: kubectl delete job mariadb-restore -n glpi
-***REMOVED***
-***REMOVED*** ---------------------------------------------------------------------------
+﻿# ---------------------------------------------------------------------------
+# MariaDB Restore Job — шаблон для відновлення бази даних
+# ---------------------------------------------------------------------------
+#
+# ВАРІАНТ A — Швидкий restore через kubectl (рекомендовано для тесту):
+#
+#   # Крок 1: скопіювати бекап в pod
+#   kubectl cp ./glpi-backup.sql glpi/$(kubectl get pod -n glpi -l app=mariadb -o jsonpath='{.items[0].metadata.name}'):/tmp/backup.sql
+#
+#   # Крок 2: відновити базу
+#   kubectl exec -n glpi deploy/mariadb -- \
+#     sh -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" glpi < /tmp/backup.sql'
+#
+#   # Крок 3: перевірити
+#   kubectl exec -n glpi deploy/mariadb -- \
+#     sh -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SHOW TABLES IN glpi;"'
+#
+# ---------------------------------------------------------------------------
+#
+# ВАРІАНТ B — Kubernetes Job (якщо бекап вже є на ноді k3s):
+#
+#   1. Помістити backup.sql на ноду: /tmp/glpi-backup/backup.sql
+#   2. kubectl apply -f k8s/mariadb-restore-job.yaml
+#   3. Слідкувати: kubectl logs -n glpi job/mariadb-restore -f
+#   4. Після завершення: kubectl delete job mariadb-restore -n glpi
+#
+# ---------------------------------------------------------------------------
 
 apiVersion: batch/v1
 kind: Job
@@ -32,8 +32,8 @@ metadata:
   name: mariadb-restore
   namespace: glpi
 spec:
-  ttlSecondsAfterFinished: 300   ***REMOVED*** Авто-видалення job через 5 хвилин після завершення
-  backoffLimit: 0                ***REMOVED*** Не повторювати при помилці — краще розібратися вручну
+  ttlSecondsAfterFinished: 300   # Авто-видалення job через 5 хвилин після завершення
+  backoffLimit: 0                # Не повторювати при помилці — краще розібратися вручну
   template:
     spec:
       restartPolicy: Never
@@ -67,11 +67,11 @@ spec:
               mountPath: /backup
       volumes:
         - name: backup-volume
-          ***REMOVED*** Варіант: hostPath з локальної ноди k3s
-          ***REMOVED*** Перед запуском: помістити backup.sql на ноду в /tmp/glpi-backup/
+          # Варіант: hostPath з локальної ноди k3s
+          # Перед запуском: помістити backup.sql на ноду в /tmp/glpi-backup/
           hostPath:
             path: /tmp/glpi-backup
             type: DirectoryOrCreate
-          ***REMOVED*** Альтернатива: PVC (розкоментуй і видали hostPath вище)
-          ***REMOVED*** persistentVolumeClaim:
-          ***REMOVED***   claimName: mariadb-backup
+          # Альтернатива: PVC (розкоментуй і видали hostPath вище)
+          # persistentVolumeClaim:
+          #   claimName: mariadb-backup
