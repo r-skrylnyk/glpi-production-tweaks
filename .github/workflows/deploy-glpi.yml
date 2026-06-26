@@ -46,7 +46,7 @@ jobs:
           echo "| \`YOUR_DOCKERHUB_USERNAME/glpi:11.0.7\` | ✅ Pushed |" >> $GITHUB_STEP_SUMMARY
 
   deploy:
-    needs: [build]
+    ***REMOVED*** build job is disabled (if: false) — no dependency needed while using official image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
