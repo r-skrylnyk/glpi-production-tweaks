@@ -1,0 +1,35 @@
+***REMOVED***
+***REMOVED***
+***REMOVED***
+***REMOVED*** Usage:
+***REMOVED***   pip install git-filter-repo
+***REMOVED***   git filter-repo --replace-text replacements.txt
+***REMOVED***   git remote add origin <URL>
+***REMOVED***   git push origin --force --all
+***REMOVED***   git push origin --force --tags
+
+***REMOVED*** ── Public IP ──────────────────────────────────────────────
+YOUR_PUBLIC_IP==>YOUR_PUBLIC_IP
+
+***REMOVED*** ── Private LAN IPs ────────────────────────────────────────
+YOUR_K3S_NODE_IP==>YOUR_K3S_NODE_IP
+YOUR_NGINX_PROXY_IP==>YOUR_NGINX_PROXY_IP
+
+***REMOVED*** ── Personal domain ────────────────────────────────────────
+YOUR_DOMAIN==>YOUR_DOMAIN
+your-domain.conf==>your-domain.conf
+
+***REMOVED*** ── Internal hostnames ─────────────────────────────────────
+YOUR_K3S_NODE_HOSTNAME==>YOUR_K3S_NODE_HOSTNAME
+
+***REMOVED*** ── Docker Hub username ────────────────────────────────────
+YOUR_DOCKERHUB_USERNAME==>YOUR_DOCKERHUB_USERNAME
+
+***REMOVED*** ── Company domains & name ─────────────────────────────────
+example.com==>example.com
+example.dev==>example.dev
+YOUR_COMPANY==>YOUR_COMPANY
+
+***REMOVED*** ── Database credentials ───────────────────────────────────
+your_glpi_database==>your_glpi_database
+your_glpi_user==>your_your_glpi_user

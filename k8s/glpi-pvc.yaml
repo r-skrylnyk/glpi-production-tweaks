@@ -14,4 +14,4 @@ spec:
     requests:
       storage: 10Gi
 ---
-***REMOVED*** Legacy PVCs kept for reference (used by custom YOUR_DOCKERHUB_USERNAME/glpi image builds)
+***REMOVED*** Legacy PVCs kept for reference (used by custom image builds)

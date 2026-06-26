@@ -23,8 +23,8 @@ spec:
       containers:
         - name: glpi
           ***REMOVED*** Офіційний образ — містить правильний Apache, всі PHP extensions, auto-генерацію config_db.php
-          ***REMOVED*** Кастомний YOUR_DOCKERHUB_USERNAME/glpi:latest використовується тільки при необхідності core-mods/plugins
-          image: glpi/glpi:11.0.7
+          ***REMOVED*** Custom image can be used instead when core-mods/plugins need to be baked in
+          image: glpi/glpi:11.0.8
           imagePullPolicy: Always
           env:
             - name: TIMEZONE
@@ -38,7 +38,7 @@ spec:
             - name: GLPI_DB_NAME
               value: your_glpi_database
             - name: GLPI_DB_USER
-              value: your_glpi_user
+              value: your_your_glpi_user
             - name: GLPI_DB_PASSWORD
               valueFrom:
                 secretKeyRef:

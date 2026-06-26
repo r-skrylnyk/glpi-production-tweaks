@@ -19,7 +19,7 @@ spec:
         - name: dockerhub-secret
       containers:
         - name: apache
-          image: YOUR_DOCKERHUB_USERNAME/library:dev
+          image: YOUR_DOCKERHUB_USERNAME/YOUR_IMAGE:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 80

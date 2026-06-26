@@ -61,13 +61,13 @@ dst-address=YOUR_PUBLIC_IP dst-port=6443
 
 **Симптом:**
 ```
-Failed to pull image "YOUR_DOCKERHUB_USERNAME/library:dev":
+Failed to pull image "YOUR_DOCKERHUB_USERNAME/YOUR_IMAGE:dev":
 pull access denied, repository does not exist or may require authorization:
 insufficient_scope: authorization failed
 ```
 
 **Причина:**  
-Docker Hub репозиторій `YOUR_DOCKERHUB_USERNAME/library` — приватний.  
+Docker Hub репозиторій `YOUR_DOCKERHUB_USERNAME/YOUR_IMAGE` — приватний.  
 k3s не мав credentials для його завантаження.
 
 **Рішення:**  
@@ -80,7 +80,7 @@ spec:
     - name: dockerhub-secret
   containers:
     - name: apache
-      image: YOUR_DOCKERHUB_USERNAME/library:dev
+      image: YOUR_DOCKERHUB_USERNAME/YOUR_IMAGE:dev
 ```
 
 В `.github/workflows/development.yml` (перед `kubectl apply`):
